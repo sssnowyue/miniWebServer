@@ -7,14 +7,14 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <string.h>
-#include <cassert>
+#include "util.h"
 
 const unsigned short port = 8080;
 
 int main() {
     // STEP1: socket()
     int server_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    assert(server_socket >= 0);
+    errif(server_socket == -1, "socket create error");
     if(server_socket == 0){// Close socket immediately
       struct linger tmp = {0, 1};
       setsockopt(server_socket, SOL_SOCKET, SO_LINGER, &tmp, sizeof(tmp));
@@ -32,11 +32,11 @@ int main() {
     int ret = 0;
     // STEP2: bind()
     ret = bind(server_socket, (struct sockaddr*)&server_address, sizeof(server_address));
-    assert(ret >= 0);
+    errif(ret == -1, "socket bind error");
 
     // STEP3: listen();
     ret = listen(server_socket, 5);
-    assert(ret >= 0);
+    errif(ret == -1, "socket listen error");
   
     while(true) {
       struct sockaddr_in client_address;
