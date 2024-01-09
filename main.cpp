@@ -5,12 +5,11 @@
 #include <sys/types.h>   
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <unistd.h>
 #include <string.h>
 #include "lib/util.h"
 #include "lib/InetAddress.h"
+#include "lib/Socket.h"
 #include <sys/epoll.h>
-#include <fcntl.h>
 #include <errno.h>
 
 #define MAX_EVENTS 1024
@@ -18,44 +17,25 @@
 
 const unsigned short port = 8080;
 
-void setnonblocking(int sockfd) {
-    int flags = fcntl(sockfd, F_GETFL, 0);
-    fcntl(sockfd, F_SETFL, flags | O_NONBLOCK);
-}
-
 int main() {
     // STEP1: socket()
-    int server_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    errif(server_socket == -1, "socket create error");
-    if(server_socket == 0){// Close socket immediately
-      struct linger tmp = {0, 1};
-      setsockopt(server_socket, SOL_SOCKET, SO_LINGER, &tmp, sizeof(tmp));
-    }else if(server_socket == 1){ // Wait for unsent data to be sent, then close the socket
-      struct linger tmp = {1, 1};
-      setsockopt(server_socket, SOL_SOCKET, SO_LINGER, &tmp, sizeof(tmp));
-    }
+    Socket *server_socket = new Socket();
     // Set Socket Address
     InetAddress *server_addr = new InetAddress("127.0.0.1", port);
-    
-    int ret = 0;
     // STEP2: bind()
-    ret = bind(server_socket, (struct sockaddr*) &server_addr->addr, server_addr->addr_len);
-    errif(ret == -1, "socket bind error");
-
+    server_socket->bind(server_addr);
     // STEP3: listen();
-    ret = listen(server_socket, 5);
-    errif(ret == -1, "socket listen error");
-
-    // I/O multiplexing Epoll - STEP 1 : Create epoll instance
+    server_socket->listen();
+    // I/O multiplSocketexing Epoll - STEP 1 : Create epoll instance
     int epfd = epoll_create1(0);
     errif(epfd == -1, "epoll create error");
     // I/O multiplexing Epoll - STEP 2 : Register an event of server socket
     struct epoll_event ev;
     bzero(&ev, sizeof(ev));
     ev.events = EPOLLIN | EPOLLET;
-    ev.data.fd = server_socket;
-    setnonblocking(server_socket);
-    epoll_ctl(epfd, EPOLL_CTL_ADD, server_socket, &ev);
+    ev.data.fd = server_socket->fd;
+    server_socket->setnonblocking();
+    epoll_ctl(epfd, EPOLL_CTL_ADD, server_socket->fd, &ev);
 
     struct epoll_event events[MAX_EVENTS];
     bzero(&events, sizeof(events));
@@ -67,21 +47,18 @@ int main() {
 
       for(int i = 0; i < nfds; ++i){
         // New client connetion
-        if(events[i].data.fd == server_socket){
+        if(events[i].data.fd == server_socket->fd){
           // STEP4: accept()
-          struct sockaddr_in client_address;
-          memset(&client_address, 0, sizeof(client_address));
-          socklen_t address_len = sizeof(client_address);
-          int client_socket = accept(server_socket, (struct sockaddr *)&client_address, &address_len);
-          errif(client_socket == -1, "socket accept error");
-          printf("new client fd %d! IP: %s Port: %d\n", client_socket, inet_ntoa(client_address.sin_addr), ntohs(client_address.sin_port));
+          InetAddress *client_addr = new InetAddress();
+          Socket *client_socket = server_socket->accept(client_addr);
+          printf("new client fd %d! IP: %s Port: %d\n", client_socket->fd, inet_ntoa(client_addr->addr.sin_addr), ntohs(client_addr->addr.sin_port));
 
           // I/O multiplexing Epoll - STEP 2 : Register an event of connected client socket
           bzero(&ev, sizeof(ev));
-          ev.data.fd = client_socket;
+          ev.data.fd = client_socket->fd;
           ev.events = EPOLLIN | EPOLLET;
-          setnonblocking(client_socket);
-          epoll_ctl(epfd, EPOLL_CTL_ADD, client_socket, &ev);
+          client_socket->setnonblocking();
+          epoll_ctl(epfd, EPOLL_CTL_ADD, client_socket->fd, &ev);
         // Ready to Read
         }else if(events[i].events & EPOLLIN){
           char buf[READ_BUFFER];
@@ -112,6 +89,6 @@ int main() {
         }
       }
     }
-    close(server_socket);
+    // close(server_socket);
     return 0;
 }

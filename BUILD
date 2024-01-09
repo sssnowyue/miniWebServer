@@ -10,11 +10,22 @@ cc_library(
   hdrs = ["lib/InetAddress.h"],
 )
 
+cc_library(
+  name = "Socket",
+  srcs = ["lib/Socket.cpp"],
+  hdrs = ["lib/Socket.h"],
+  deps = [
+    ":util",
+    "InetAddress",
+  ]
+)
+
 cc_binary(
   name = "main",
   srcs = ["main.cpp"],
   deps = [
     ":util",
-    "InetAddress"
+    "InetAddress",
+    "Socket"
   ],
 )
