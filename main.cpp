@@ -7,7 +7,8 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <string.h>
-#include "util.h"
+#include "lib/util.h"
+#include "lib/InetAddress.h"
 #include <sys/epoll.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -34,15 +35,11 @@ int main() {
       setsockopt(server_socket, SOL_SOCKET, SO_LINGER, &tmp, sizeof(tmp));
     }
     // Set Socket Address
-    struct sockaddr_in server_address; // sockaddr_in used for IPv4
-    memset(&server_address, 0, sizeof(server_address));
-    server_address.sin_family = AF_INET; // Address family type (UNIX local domain protocol family, TCP/IPv4 protocol family, TCP/IPv6 protocol family)
-    server_address.sin_port = htons(port); // Port number
-    server_address.sin_addr.s_addr = htonl(INADDR_ANY); // Internet address
-
+    InetAddress *server_addr = new InetAddress("127.0.0.1", port);
+    
     int ret = 0;
     // STEP2: bind()
-    ret = bind(server_socket, (struct sockaddr*)&server_address, sizeof(server_address));
+    ret = bind(server_socket, (struct sockaddr*) &server_addr->addr, server_addr->addr_len);
     errif(ret == -1, "socket bind error");
 
     // STEP3: listen();
