@@ -20,12 +20,20 @@ cc_library(
   ]
 )
 
+cc_library(
+  name = "Epoll",
+  srcs = ["lib/Epoll.cpp"],
+  hdrs = ["lib/Epoll.h"],
+  deps = [":util"]
+)
+
 cc_binary(
   name = "main",
   srcs = ["main.cpp"],
   deps = [
     ":util",
     "InetAddress",
-    "Socket"
+    "Socket",
+    "Epoll"
   ],
 )
