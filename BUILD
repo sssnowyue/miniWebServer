@@ -24,7 +24,16 @@ cc_library(
   name = "Epoll",
   srcs = ["lib/Epoll.cpp"],
   hdrs = ["lib/Epoll.h"],
-  deps = [":util"]
+  deps = [
+    ":util",
+    "Channel"
+  ]
+)
+
+cc_library(
+  name = "Channel",
+  srcs = ["lib/Channel.cpp"],
+  hdrs = ["lib/Channel.h"],
 )
 
 cc_binary(
@@ -34,6 +43,7 @@ cc_binary(
     ":util",
     "InetAddress",
     "Socket",
-    "Epoll"
+    "Epoll",
+    "Channel"
   ],
 )

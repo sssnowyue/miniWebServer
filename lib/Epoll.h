@@ -6,6 +6,7 @@
 #include "util.h"
 #include <string.h>
 #include <unistd.h>
+#include "Channel.h"
 
 #define MAX_EVENTS 1000
 
@@ -20,9 +21,10 @@ public:
     Epoll();
     ~Epoll();
     // STEP 2 : Register an event of server socket or client socket
-    void addEpFd(int fd, uint32_t op);
+    // void addEpFd(int fd, uint32_t op);
+    void updateChannel(Channel *channel);
     // STEP 3 : Wait for ready events
-    std::vector<epoll_event> poll(int timeout = -1);
+    std::vector<Channel*> waitPoll(int timeout = -1);
 };
 
 
