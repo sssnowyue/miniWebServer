@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SERVER_H
+#define SERVER_H
 
 #include <stdio.h>
 #include <string>
@@ -18,3 +19,5 @@ public:
     void newConnection(Socket*);
     void handleReadEvent(Socket*);
 };
+
+#endif

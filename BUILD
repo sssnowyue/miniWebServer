@@ -15,7 +15,7 @@ cc_library(
     srcs = ["lib/Socket.cpp"],
     hdrs = ["lib/Socket.h"],
     deps = [
-        "InetAddress",
+        ":InetAddress",
         ":util",
     ],
 )
@@ -25,7 +25,7 @@ cc_library(
     srcs = ["lib/Epoll.cpp"],
     hdrs = ["lib/Epoll.h"],
     deps = [
-        "Channel",
+        ":Channel",
         ":util",
     ],
 )
@@ -34,7 +34,9 @@ cc_library(
     name = "Channel",
     srcs = ["lib/Channel.cpp"],
     hdrs = ["lib/Channel.h"],
-    deps = ["EventLoop"],
+    deps = [
+        ":EventLoop"
+    ],
 )
 
 cc_library(
@@ -42,8 +44,8 @@ cc_library(
     srcs = ["lib/Server.cpp"],
     hdrs = ["lib/Server.h"],
     deps = [
-        "Channel",
-        "Socket",
+        ":Channel",
+        ":Socket",
     ],
 )
 
@@ -52,8 +54,8 @@ cc_library(
     srcs = ["lib/EventLoop.cpp"],
     hdrs = ["lib/EventLoop.h"],
     deps = [
-        "Epoll",
-        "Channel",
+        ":Epoll",
+        ":Channel"
     ],
 )
 
@@ -61,7 +63,7 @@ cc_binary(
     name = "main",
     srcs = ["main.cpp"],
     deps = [
-        "EventLoop",
-        "Server",
+        ":EventLoop",
+        ":Server",
     ],
 )

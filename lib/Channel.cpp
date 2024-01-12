@@ -1,5 +1,4 @@
 #include "Channel.h"
-#include "EventLoop.h"
 
 Channel::Channel(EventLoop *_eventLoop, int _fd) : eventLoop(_eventLoop), fd(_fd), events(0), revents(0), inEpoll(false)
 {
@@ -34,7 +33,7 @@ void Channel::setCallback(std::function<void()> _cb)
     callback = _cb;
 }
 
-void Channel::handleEvent()
-{
-    callback();
-}
+// void Channel::handleEvent()
+// {
+//     callback();
+// }

@@ -1,7 +1,9 @@
-#pragma once
+#ifndef CHANNEL_H
+#define CHANNEL_H
 
 #include <sys/epoll.h>
 #include <functional>
+#include "EventLoop.h"
 
 /*
 Data Construction of epoll_event:
@@ -22,7 +24,6 @@ struct epoll_event {
 
 // data.ptr <---> Channel
 // Manage event monitoring and processing of file descriptor
-class EventLoop;
 class Channel
 {
 public:
@@ -48,8 +49,10 @@ public:
   void setCallback(std::function<void()>);
 
   // run CallBack function according to channel's callback variable
-  void handleEvent();
+  // void handleEvent();
 
   // Epoll STEP 2 : let channel(event) to be Registered in Epoll
   void updateChannel();
 };
+
+#endif

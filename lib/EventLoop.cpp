@@ -1,7 +1,5 @@
 #include "EventLoop.h"
-#include "Epoll.h"
 #include "Channel.h"
-
 EventLoop::EventLoop() : epfd(nullptr), quit(false)
 {
     epfd = new Epoll();
@@ -25,7 +23,7 @@ void EventLoop::waitloop()
         readyChannels = epfd->waitPoll();
         for (auto it = readyChannels.begin(); it != readyChannels.end(); ++it)
         {
-            (*it)->handleEvent();
+            (*it)->callback();
         }
     }
 }

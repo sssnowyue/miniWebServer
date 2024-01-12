@@ -1,6 +1,8 @@
-#pragma once
+#ifndef EVENTLOOP_H
+#define EVENTLOOP_H
 
-class Epoll;
+#include "Epoll.h"
+
 class Channel;
 class EventLoop
 {
@@ -18,3 +20,5 @@ public:
     // Epoll STEP 3 : Wait for ready events
     void waitloop();
 };
+
+#endif

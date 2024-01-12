@@ -1,14 +1,13 @@
-#pragma once
+#ifndef EPOLL_H
+#define EPOLL_H
 
 #include <sys/epoll.h>
 #include <vector>
 #include "util.h"
 #include <string.h>
 #include <unistd.h>
-// #include "Channel.h"
 
 #define MAX_EVENTS 1000
-
 class Channel;
 // I/O multiplSocketexing Epoll
 class Epoll
@@ -27,3 +26,5 @@ public:
     // STEP 3 : Wait for ready events
     std::vector<Channel *> waitPoll(int timeout = -1);
 };
+
+#endif

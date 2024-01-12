@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SOCKET_H
+#define SOCKET_H
 
 #include <unistd.h>
 #include <fcntl.h>
@@ -25,3 +26,5 @@ public:
     //set socket to be nonblock
     void setnonblocking();
 };
+
+#endif
