@@ -32,3 +32,8 @@
 *.app
 
 bazel*/
+
+build/
+test-build/
+
+.cache/
