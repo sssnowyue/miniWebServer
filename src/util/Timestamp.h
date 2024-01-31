@@ -15,6 +15,7 @@ public:
   static Timestamp now();
   // Format Timestamp (microseconds) To YYYY-MM-DD HH:MM:SS
   std::string toString() const;
+  ~Timestamp();
 
 private:
   // Timestamp (microseconds)

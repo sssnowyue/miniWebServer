@@ -21,3 +21,5 @@ std::string Timestamp::toString() const {
   oss << std::put_time(localTm, "%Y-%m-%d %H:%M:%S");
   return oss.str();
 }
+
+Timestamp::~Timestamp() {}
