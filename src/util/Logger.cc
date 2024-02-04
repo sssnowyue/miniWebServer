@@ -5,7 +5,7 @@ Logger::Logger(const string &logFileName) {
   errif(!fileStream_.is_open(), "Error opening log file");
 }
 
-void Logger::log(LogLevel level, const char *msg) {
+void Logger::log(LogLevel level, const char *msg, ...) {
 
   lock_guard<mutex> lock(mutex_);
 
@@ -26,8 +26,13 @@ void Logger::log(LogLevel level, const char *msg) {
     break;
   }
 
+  va_list args;
+  va_start(args, msg);
+
   char buffer[256];
-  snprintf(buffer, sizeof(buffer), "%s", msg);
+  vsnprintf(buffer, sizeof(buffer), msg, args);
+  
+  va_end(args);
 
   logMessage << buffer << endl;
 
