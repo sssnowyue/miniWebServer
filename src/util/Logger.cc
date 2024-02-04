@@ -5,36 +5,37 @@ Logger::Logger(const string &logFileName) {
   errif(!fileStream_.is_open(), "Error opening log file");
 }
 
-// template <typename... Args>
-// void Logger::log(LogLevel level, const char *format, Args... args) {
+void Logger::log(LogLevel level, const char *msg) {
 
-//   lock_guard<mutex> lock(mutex_);
+  lock_guard<mutex> lock(mutex_);
 
-//   ostringstream logMessage;
-//   logMessage << getTimestamp() << " ";
+  ostringstream logMessage;
+  logMessage << getTimestamp() << " ";
 
-//   switch (level) {
-//   case LogLevel::INFO:
-//     logMessage << "[INFO] ";
-//     break;
-//   case LogLevel::WARNING:
-//     logMessage << "[WARNING] ";
-//     break;
-//   case LogLevel::ERROR:
-//     logMessage << "[ERROR] ";
-//     break;
-//   }
+  switch (level) {
+  case LogLevel::INFO:
+    logMessage << "[INFO] ";
+    break;
+  case LogLevel::WARNING:
+    logMessage << "[WARNING] ";
+    break;
+  case LogLevel::ERROR:
+    logMessage << "[ERROR] ";
+    break;
+  default:
+    break;
+  }
 
-//   char buffer[256];
-//   snprintf(buffer, sizeof(buffer), format, args...);
+  char buffer[256];
+  snprintf(buffer, sizeof(buffer), "%s", msg);
 
-//   logMessage << buffer << endl;
+  logMessage << buffer << endl;
 
-//   if (fileStream_.is_open()) {
-//     fileStream_ << logMessage.str();
-//     fileStream_.flush();
-//   }
-// }
+  if (fileStream_.is_open()) {
+    fileStream_ << logMessage.str();
+    fileStream_.flush();
+  }
+}
 
 string Logger::getTimestamp() const { return Timestamp::now().toString(); }
 
