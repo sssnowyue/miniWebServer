@@ -17,7 +17,7 @@ public:
   void updateChannel(Channel *channel);
   // STEP 2 - 2 : manage(delete) an event of server socket or client
   // socket
-  void deleteChannel(Channel *channel);
+  // void deleteChannel(Channel *channel);
   // STEP 3 : Wait for ready events
   Timestamp waitPoll(int timeout, std::vector<Channel *> *activeChannels);
 

@@ -18,16 +18,16 @@ void EventLoop::updateChannel(Channel *channel) const {
   epoller_->updateChannel(channel);
 }
 
-void EventLoop::deleteChannel(Channel *channel) const {
-  epoller_->deleteChannel(channel);
-}
+// void EventLoop::deleteChannel(Channel *channel) const {
+//   epoller_->deleteChannel(channel);
+// }
 
 void EventLoop::loop() {
   while (true) {
     activeChannels_.clear();
     auto epollReturnTime_ = epoller_->waitPoll(pollTimeMs, &activeChannels_);
-    for (auto activech : activeChannels_) {
-      activech->handleEvent(epollReturnTime_);
+    for (auto activechannel : activeChannels_) {
+      activechannel->handleEvent(epollReturnTime_);
     }
   }
 }

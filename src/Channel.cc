@@ -1,8 +1,10 @@
 #include "Channel.h"
 #include "EventLoop.h"
+#include "util/Logger.h"
 
 Channel::Channel(int fd, EventLoop *eventloop)
-    : eventLoop_(eventloop), fd_(fd), events_(0), revents_(0) {}
+    : eventLoop_(eventloop), fd_(fd), events_(0), revents_(0),
+      status_(ChannelState::READY_TO_ADD) {}
 
 Channel::~Channel() {}
 

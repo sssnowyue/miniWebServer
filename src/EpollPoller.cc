@@ -14,26 +14,48 @@ EpollPoller::~EpollPoller() {
   }
 }
 
+// void EpollPoller::updateChannel(Channel *channel) {
+//   ChannelState status = channel->getCurState();
+//   if (status == ChannelState::DELETED || status ==
+//   ChannelState::READY_TO_ADD) {
+//     channel->setCurState(ChannelState::ADDED);
+//     EpollCtlOperate(channel, EPOLL_CTL_ADD);
+//   } else {
+//     if (channel->getEvents() == NoneEvent) {
+//       channel->setCurState(ChannelState::DELETED);
+//       EpollCtlOperate(channel, EPOLL_CTL_DEL);
+//     } else {
+//       EpollCtlOperate(channel, EPOLL_CTL_MOD);
+//     }
+//   }
+// }
+
+// void EpollPoller::deleteChannel(Channel *channel) {
+//   ChannelState status = channel->getCurState();
+//   if (status == ChannelState::ADDED) {
+//     EpollCtlOperate(channel, EPOLL_CTL_DEL);
+//   }
+//   channel->setCurState(ChannelState::DELETED);
+// }
+
 void EpollPoller::updateChannel(Channel *channel) {
-  Status status = channel->getCurStatus();
-  if (status == Status::DELETED || status == Status::READY_TO_ADD) {
-    channel->setCurStatus(Status::ADDED);
+  ChannelState status = channel->getCurState();
+  if (status == ChannelState::DELETED) {
+    if (channel->getEvents() != NoneEvent) {
+      EpollCtlOperate(channel, EPOLL_CTL_ADD);
+      channel->setCurState(ChannelState::ADDED);
+    }
+  } else if (status == ChannelState::READY_TO_ADD) {
     EpollCtlOperate(channel, EPOLL_CTL_ADD);
+    channel->setCurState(ChannelState::ADDED);
   } else {
     if (channel->getEvents() == NoneEvent) {
-      channel->setCurStatus(Status::DELETED);
       EpollCtlOperate(channel, EPOLL_CTL_DEL);
+      channel->setCurState(ChannelState::DELETED);
     } else {
       EpollCtlOperate(channel, EPOLL_CTL_MOD);
     }
   }
-}
-
-void EpollPoller::deleteChannel(Channel *channel) {
-  if (channel->getCurStatus() == Status::ADDED) {
-    EpollCtlOperate(channel, EPOLL_CTL_DEL);
-  }
-  channel->setCurStatus(Status::DELETED);
 }
 
 Timestamp EpollPoller::waitPoll(int timeout,
