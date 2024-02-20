@@ -7,6 +7,10 @@ class Buffer {
 public:
   explicit Buffer(size_t initialSize = kInitialSize);
 
+  size_t readableLen() const;
+  size_t writeableLen() const;
+  size_t emptyLen() const;
+
   // append data with data_len
   void append(const char *data, size_t data_len);
   // retrieve string of len
@@ -32,10 +36,6 @@ private:
   // get the starting address of buffer
   char *begin();
   const char *begin() const;
-
-  size_t readableLen() const;
-  size_t writeableLen() const;
-  size_t emptyLen() const;
 
   // Expand Buffer before appending data with len if len is more than current
   // writeable space

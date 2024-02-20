@@ -48,23 +48,23 @@ public:
   void disableAll();
   void set_revents(int revt) { revents_ = revt; }
   void setReadCallback(const std::function<void(Timestamp)> &callback) {
-    readCallback_ = std::move(callback);
+    readCallback_ = callback;
   }
   void setWriteCallback(const std::function<void()> &callback) {
-    writeCallback_ = std::move(callback);
+    writeCallback_ = callback;
   }
   void setCloseCallback(const std::function<void()> &callback) {
-    closeCallback_ = std::move(callback);
+    closeCallback_ = callback;
   }
   void setErrorCallback(const std::function<void()> &callback) {
-    errorCallback_ = std::move(callback);
+    errorCallback_ = callback;
   }
 
   void handleEvent(Timestamp &tm);
 
 private:
-  ChannelState status_; // status of channel (-1 Deleted from Epoll, 0 Ready
-                        // write into Epoll, 1 Added into Epoll)
+  ChannelState status_;  // status of channel (-1 Deleted from Epoll, 0 Ready
+                         // write into Epoll, 1 Added into Epoll)
   int fd_;               // File descriptor
   EventLoop *eventLoop_; // Pointer to Epoll class object
   int events_;       // Event types (EPOLLIN | EPOLLOUT | EPOLLPRI | EPOLLERR |

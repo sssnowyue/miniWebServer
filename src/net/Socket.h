@@ -1,5 +1,4 @@
 #pragma once
-#include "../util/Errif.h"
 #include "InetAddress.h"
 #include <arpa/inet.h>
 #include <fcntl.h>
@@ -24,6 +23,8 @@ public:
 
   // set socket to be nonblock
   void setnonblocking();
+
+  void shutdownWrite();
 
 private:
   int fd_;

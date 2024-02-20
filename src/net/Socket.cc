@@ -1,4 +1,6 @@
 #include "Socket.h"
+#include "../util/Errif.h"
+#include "../util/Logger.h"
 #include <sys/socket.h>
 
 void vertifyFD(int fd) {
@@ -47,4 +49,10 @@ int Socket::accept(InetAddress *addr) {
 void Socket::setnonblocking() {
   int flags = fcntl(fd_, F_GETFL, 0);
   fcntl(fd_, F_SETFL, flags | O_NONBLOCK);
+}
+
+void Socket::shutdownWrite() {
+  if (::shutdown(fd_, SHUT_WR) < 0) {
+    LOG_ERROR("shutdownWrite error");
+  }
 }
