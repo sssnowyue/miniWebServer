@@ -52,6 +52,6 @@ private:
   void handleWrite();
   void handleClose();
   void handleError();
-
+public:
   void writeToBuffer_(const char *data);
 };

@@ -1,9 +1,15 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.12)
+project(Echo_Server)
 
-project(miniWebServer)
+# 设置C++标准
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-set(CMAKE_CXX_STANDARD 11)
+ADD_SUBDIRECTORY(src)
 
-file(GLOB LIB_SOURCES ${PROJECT_SOURCE_DIR}/lib/*.cpp) 
+# 添加可执行文件
+add_executable(echoserver echoserver.cc)
 
-add_executable(miniWebServer main.cpp ${LIB_SOURCES})
+find_package(Threads REQUIRED)
+target_link_libraries(echoserver server Threads::Threads)
+

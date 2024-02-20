@@ -8,6 +8,11 @@ class Server {
 public:
   Server(const unsigned short port);
   ~Server();
+  void Start();
+  void setMessage(const MessageCallback &cb) { messagecb_ = cb; }
+  void setWriteComplete(const WriteCompleteCallback &cb) {
+    writeCompletecb_ = cb;
+  }
 
 private:
   EventLoop *main_reactor_;
