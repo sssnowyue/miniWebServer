@@ -3,12 +3,6 @@
 #include "util/Buffer.h"
 #include "util/Logger.h"
 #include <cstring>
-// namespace std {
-// template <typename T, typename... Args>
-// std::unique_ptr<T> make_unique(Args &&...args) {
-//   return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
-// }
-// } // namespace std
 Connector::Connector(int socketFd, EventLoop *eventLoop,
                      const InetAddress &addr, MessageCallback &messagecb,
                      WriteCompleteCallback &writeCompletecb)

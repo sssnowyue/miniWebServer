@@ -3,12 +3,6 @@
 #include "EventLoop.h"
 #include "threadpool/ThreadPool.h"
 #include <cassert>
-// namespace std {
-// template <typename T, typename... Args>
-// std::unique_ptr<T> make_unique(Args &&...args) {
-//   return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
-// }
-// } // namespace std
 
 Server::Server(const unsigned short port) {
   main_reactor_ = new EventLoop();
@@ -19,7 +13,7 @@ Server::Server(const unsigned short port) {
   acceptor_->setNewConnectionCallback(cb);
 
   unsigned int size = std::thread::hardware_concurrency();
-  sub_reactors_thread_pool_ = new ThreadPool(size * 2);
+  sub_reactors_thread_pool_ = new ThreadPool(size);
 
   for (size_t i = 0; i < size; ++i) {
     std::unique_ptr<EventLoop> sub_reactor = std::make_unique<EventLoop>();
@@ -42,9 +36,10 @@ void Server::newConnection(int fd, const InetAddress &addr) {
 
 void Server::Start() {
   for (size_t i = 0; i < sub_reactors_.size(); ++i) {
-    std::function<void()> sub_loop =
-        std::bind(&EventLoop::loop, sub_reactors_[i].get());
-    sub_reactors_thread_pool_->enqueue(std::move(sub_loop));
+    // std::function<void()> sub_loop =
+    //     std::bind(&EventLoop::loop, sub_reactors_[i].get());
+    auto loop_function = [this, i]() { sub_reactors_[i]->loop(); };
+    sub_reactors_thread_pool_->enqueue(loop_function);
   }
   main_reactor_->loop();
 }

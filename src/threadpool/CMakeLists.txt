@@ -1,4 +1,5 @@
 add_library(threadpool SHARED
     ThreadPool.cc
-    ThreadPool.h
 )
+
+target_include_directories(threadpool PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
