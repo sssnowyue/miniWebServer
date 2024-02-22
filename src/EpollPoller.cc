@@ -1,5 +1,6 @@
 #include "EpollPoller.h"
 #include "Channel.h"
+#include "Logger.h"
 #include <cstring>
 
 EpollPoller::EpollPoller() : epfd_(-1), events_(initEpollEventListSize) {
@@ -62,6 +63,7 @@ Timestamp EpollPoller::waitPoll(int timeout,
                                 std::vector<Channel *> *activeChannels) {
   // Wait for ready events
   int nfds = epoll_wait(epfd_, events_.data(), events_.size(), timeout);
+  LOG_INFO("epfd_ %d === epoll_wait nfds number is %d", epfd_, nfds);
   Timestamp nowReturn = Timestamp::now();
   if (nfds > 0) {
     // Traverse the ready events, update revents of the corresponding Channel,
@@ -91,6 +93,6 @@ void EpollPoller::EpollCtlOperate(Channel *channel, int operation) {
 
   int ret = epoll_ctl(epfd_, operation, fd, &event);
   errif(ret == -1, "epoll Ctl Operation error");
-
+  LOG_INFO("EpollPoller::updateChannel : FD %d operates in epoll : Operation_ID %d", fd, operation);
   return;
 }

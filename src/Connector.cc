@@ -2,6 +2,7 @@
 #include "net/InetAddress.h"
 #include "util/Buffer.h"
 #include "util/Logger.h"
+#include <cassert>
 #include <cstring>
 Connector::Connector(int socketFd, EventLoop *eventLoop,
                      const InetAddress &addr, MessageCallback &messagecb,
@@ -13,6 +14,7 @@ Connector::Connector(int socketFd, EventLoop *eventLoop,
       inputBuffer_(std::make_unique<Buffer>()),
       outputBuffer_(std::make_unique<Buffer>()),
       state_(ConnectorState::Connecting) {
+  socket_->setnonblocking();
   channel_->setReadCallback(
       std::bind(&Connector::handleRead, this, std::placeholders::_1));
   channel_->setWriteCallback(std::bind(&Connector::handleWrite, this));
@@ -27,10 +29,22 @@ Connector::Connector(int socketFd, EventLoop *eventLoop,
 Connector::~Connector() {}
 
 void Connector::handleRead(Timestamp receiveTime) {
+  LOG_INFO("New Test - Connector HandleRead: Begin to RUN handleRead");
   int saveErrno = 0;
   ssize_t n = inputBuffer_->readFd(
       socketFd_, &saveErrno); // read data from fd into inputBuffer
-  if (n > 0) {                // got data
+  LOG_INFO("New Test - Connector HandleRead: I have Received data with length "
+           "of %d from Client",
+           n);
+  if (n > 0) { // got data
+    if (shared_from_this().get() == nullptr) {
+      LOG_ERROR("shared_from_this is nullptr!");
+      return;
+    }
+    if (inputBuffer_.get() == nullptr) {
+      LOG_ERROR("inputBuffer_ is nullptr!");
+      return;
+    }
     messageCallback_(shared_from_this(), inputBuffer_.get(), receiveTime);
   } else if (n == 0) { // client disconnect
     handleClose();
