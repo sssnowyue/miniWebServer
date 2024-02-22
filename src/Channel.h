@@ -22,9 +22,10 @@ struct epoll_event {
 
 // data.ptr <---> Channel
 // Manage event monitoring and processing of file descriptor
-#define ReadEvent (EPOLLIN | EPOLLPRI | EPOLLET)
-#define WriteEvent EPOLLOUT
-#define NoneEvent 0
+
+constexpr int ReadEvent = (EPOLLIN | EPOLLPRI | EPOLLET);
+constexpr int WriteEvent = EPOLLOUT;
+constexpr int NoneEvent = 0;
 
 class EventLoop;
 enum class ChannelState { DELETED = -1, READY_TO_ADD = 0, ADDED = 1 };

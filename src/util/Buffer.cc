@@ -1,4 +1,5 @@
 #include "Buffer.h"
+#include "Logger.h"
 #include <algorithm>
 #include <string>
 #include <sys/uio.h>
@@ -60,6 +61,7 @@ ssize_t Buffer::readFd(int fd, int *saveErrno) {
 
   const int iovcnt = (writableLength < sizeof(extrabuf)) ? 2 : 1;
   const ssize_t n = ::readv(fd, vec, iovcnt);
+  LOG_INFO("New Test - Buffer.cc : I have Received data with length of %d from Client", n);
 
   if (n < 0) {
     *saveErrno = errno;
