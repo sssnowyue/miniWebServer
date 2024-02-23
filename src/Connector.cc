@@ -1,18 +1,19 @@
 #include "Connector.h"
+#include "Channel.h"
 #include "net/InetAddress.h"
+#include "net/Socket.h"
 #include "util/Buffer.h"
 #include "util/Logger.h"
-#include <cassert>
 #include <cstring>
 Connector::Connector(int socketFd, EventLoop *eventLoop,
                      const InetAddress &addr, MessageCallback &messagecb,
                      WriteCompleteCallback &writeCompletecb)
-    : socketFd_(socketFd), eventLoop_(eventLoop), addr_(addr),
-      messageCallback_(messagecb), writeCompleteCallback_(writeCompletecb),
+    : eventLoop_(eventLoop), addr_(addr), messageCallback_(messagecb),
+      writeCompleteCallback_(writeCompletecb),
       socket_(std::make_unique<Socket>(socketFd)),
       channel_(std::make_unique<Channel>(socketFd, eventLoop)),
-      inputBuffer_(std::make_unique<Buffer>()),
-      outputBuffer_(std::make_unique<Buffer>()),
+      // inputBuffer_(std::make_unique<Buffer>()),
+      // outputBuffer_(std::make_unique<Buffer>()),
       state_(ConnectorState::Connecting) {
   socket_->setnonblocking();
   channel_->setReadCallback(
@@ -26,26 +27,30 @@ Connector::Connector(int socketFd, EventLoop *eventLoop,
   LOG_INFO("Connect From : %s", addr_.toIp().c_str());
 }
 
-Connector::~Connector() {}
+Connector::~Connector() { LOG_INFO("~Connector()"); }
 
 void Connector::handleRead(Timestamp receiveTime) {
   LOG_INFO("New Test - Connector HandleRead: Begin to RUN handleRead");
   int saveErrno = 0;
-  ssize_t n = inputBuffer_->readFd(
-      socketFd_, &saveErrno); // read data from fd into inputBuffer
+  // if (channel_.get() == nullptr) {
+  //   LOG_ERROR("channel_.get() is nullptr!");
+  //   return;
+  // }
+  ssize_t n = inputBuffer_.readFd(
+      channel_->getFd(), &saveErrno); // read data from fd into inputBuffer
   LOG_INFO("New Test - Connector HandleRead: I have Received data with length "
            "of %d from Client",
            n);
   if (n > 0) { // got data
-    if (shared_from_this().get() == nullptr) {
-      LOG_ERROR("shared_from_this is nullptr!");
-      return;
-    }
-    if (inputBuffer_.get() == nullptr) {
-      LOG_ERROR("inputBuffer_ is nullptr!");
-      return;
-    }
-    messageCallback_(shared_from_this(), inputBuffer_.get(), receiveTime);
+    // if (shared_from_this().get() == nullptr) {
+    //   LOG_ERROR("shared_from_this is nullptr!");
+    //   return;
+    // }
+    // if (inputBuffer_.get() == nullptr) {
+    //   LOG_ERROR("inputBuffer_ is nullptr!");
+    //   return;
+    // }
+    messageCallback_(shared_from_this(), &inputBuffer_, receiveTime);
   } else if (n == 0) { // client disconnect
     handleClose();
   } else { // error
@@ -55,18 +60,18 @@ void Connector::handleRead(Timestamp receiveTime) {
 
 void Connector::writeToBuffer_(const char *data) {
   size_t data_len = strlen(data);
-  outputBuffer_->append(data, data_len);
+  outputBuffer_.append(data, data_len);
   channel_->enableReading();
 }
 
 void Connector::handleWrite() {
   int saveErrno = 0;
-  ssize_t n = outputBuffer_->writeFd(
-      socketFd_, &saveErrno); // write data from outputBuffer into fd
+  ssize_t n = outputBuffer_.writeFd(
+      channel_->getFd(), &saveErrno); // write data from outputBuffer into fd
   if (n > 0) {
     // if write all data done then tell epoll to finish write; Otherwise epoll
     // will continue to write in the next time
-    if (outputBuffer_->readableLen() == 0) {
+    if (outputBuffer_.readableLen() == 0) {
       channel_->disableWriting();
       if (writeCompleteCallback_) {
         writeCompleteCallback_(shared_from_this());
@@ -83,6 +88,7 @@ void Connector::handleWrite() {
 void Connector::handleClose() {
   state_ = ConnectorState::Disconnected;
   channel_->disableAll();
+  removeConnectioncb_(channel_->getFd());
   LOG_INFO("Disconnect From : %s", addr_.toIp().c_str());
 }
 

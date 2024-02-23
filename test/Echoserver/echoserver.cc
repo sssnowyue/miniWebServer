@@ -1,8 +1,6 @@
 #include "../../src/Server.h"
 void onMessage(const ConnectorPtr &conn, Buffer *buf, Timestamp time) {
-  std::cout << "Start retrieveAllStr" << std::endl;
   std::string msg = buf->retrieveAllStr();
-  std::cout << "End retrieveAllStr" << std::endl;
   std::cout << "Message from client " << msg << std::endl;
   conn->writeToBuffer_(msg.c_str());
 }

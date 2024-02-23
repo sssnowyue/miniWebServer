@@ -32,8 +32,6 @@ int main() {
 
     // 发送请求
     send(sock , hello , strlen(hello) , 0);
-    send(sock , hello , strlen(hello) , 0);
-    send(sock , hello , strlen(hello) , 0);
     std::cout << "Request sent" << std::endl;
 
     // 接收服务器响应

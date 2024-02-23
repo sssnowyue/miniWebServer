@@ -7,7 +7,8 @@
 class InetAddress;
 class Connector : public std::enable_shared_from_this<Connector> {
 public:
-  Connector(int socketFd, EventLoop *eventLoop, const InetAddress &addr, MessageCallback &messagecb, WriteCompleteCallback &writeCompletecb);
+  Connector(int socketFd, EventLoop *eventLoop, const InetAddress &addr,
+            MessageCallback &messagecb, WriteCompleteCallback &writeCompletecb);
   ~Connector();
   // void setConnectionCallback(
   //     const std::function<void(const std::shared_ptr<Connector> &)> &cb) {
@@ -30,16 +31,18 @@ public:
 private:
   enum ConnectorState { Connecting, Connected, Disconnecting, Disconnected };
 
-  int socketFd_;
+  // int socketFd_;
   EventLoop *eventLoop_;
   std::unique_ptr<Socket> socket_;
   const InetAddress addr_;
   std::unique_ptr<Channel> channel_;
-  std::unique_ptr<Buffer> inputBuffer_;
-  std::unique_ptr<Buffer> outputBuffer_;
+  // std::unique_ptr<Buffer> inputBuffer_;
+  // std::unique_ptr<Buffer> outputBuffer_;
+  Buffer inputBuffer_;
+  Buffer outputBuffer_;
   ConnectorState state_;
 
-  // 1. Processing functions after connection establishment/closure
+  // 1. Processing functions after connectionstablishment/closure
   // std::function<void(const std::shared_ptr<Connector> &)> connetionCallback_;
   // 2. Processing function after receiving message
   MessageCallback messageCallback_;
@@ -52,6 +55,9 @@ private:
   void handleWrite();
   void handleClose();
   void handleError();
+
+  std::function<void(int)> removeConnectioncb_;
 public:
   void writeToBuffer_(const char *data);
+  void setRemoveConnection(const std::function<void(int)> &cb){removeConnectioncb_ = cb;}
 };

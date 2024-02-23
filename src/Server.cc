@@ -30,8 +30,13 @@ Server::~Server() {
 void Server::newConnection(int fd, const InetAddress &addr) {
   assert(fd != -1);
   uint64_t random = fd % sub_reactors_.size();
-  std::unique_ptr<Connector> conn = std::make_unique<Connector>(
-      fd, sub_reactors_[random].get(), addr, messagecb_, writeCompletecb_);
+  ConnectorPtr conn(new Connector(fd, sub_reactors_[random].get(), addr, messagecb_, writeCompletecb_));
+  connectionsMap_[fd] = conn;
+  conn->setRemoveConnection(std::bind(&Server::removeConnection, this, std::placeholders::_1));
+}
+
+void Server::removeConnection(int fd){
+  connectionsMap_.erase(fd);
 }
 
 void Server::Start() {
