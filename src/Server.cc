@@ -8,9 +8,9 @@ Server::Server(const unsigned short port) {
   main_reactor_ = new EventLoop();
   acceptor_ = new Acceptor(main_reactor_, port);
   std::function<void(int, const InetAddress &)> cb =
-      std::bind(&Server::newConnection, this, std::placeholders::_1,
+      std::bind(&Server::createConnection, this, std::placeholders::_1,
                 std::placeholders::_2);
-  acceptor_->setNewConnectionCallback(cb);
+  acceptor_->setCreateConnectionCallback(cb);
 
   unsigned int size = std::thread::hardware_concurrency();
   sub_reactors_thread_pool_ = new ThreadPool(size);
@@ -27,17 +27,17 @@ Server::~Server() {
   delete sub_reactors_thread_pool_;
 }
 
-void Server::newConnection(int fd, const InetAddress &addr) {
+void Server::createConnection(int fd, const InetAddress &addr) {
   assert(fd != -1);
   uint64_t random = fd % sub_reactors_.size();
-  ConnectorPtr conn(new Connector(fd, sub_reactors_[random].get(), addr, messagecb_, writeCompletecb_));
+  ConnectorPtr conn(new Connector(fd, sub_reactors_[random].get(), addr,
+                                  messagecb_, writeCompletecb_));
   connectionsMap_[fd] = conn;
-  conn->setRemoveConnection(std::bind(&Server::removeConnection, this, std::placeholders::_1));
+  conn->setDeleteConnection(
+      std::bind(&Server::deleteConnection, this, std::placeholders::_1));
 }
 
-void Server::removeConnection(int fd){
-  connectionsMap_.erase(fd);
-}
+void Server::deleteConnection(int fd) { connectionsMap_.erase(fd); }
 
 void Server::Start() {
   for (size_t i = 0; i < sub_reactors_.size(); ++i) {

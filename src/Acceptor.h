@@ -8,7 +8,7 @@ class Acceptor {
 public:
   Acceptor(EventLoop *eventLoop, const unsigned short port);
   ~Acceptor();
-  void setNewConnectionCallback(const std::function<void(int, const InetAddress&)> &callback) {
+  void setCreateConnectionCallback(const std::function<void(int, const InetAddress&)> &callback) {
     newConnectionCallback_ = callback;
   }
 

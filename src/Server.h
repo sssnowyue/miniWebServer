@@ -15,17 +15,37 @@ public:
   }
 
 private:
+  /**
+  Main Reactor:
+    To serve Accpetor
+  */
   EventLoop *main_reactor_;
+  /**
+  Acceptor:
+    1. Listen,
+    2. Accept new clients,
+    3. Assign them to SubReactors
+  */
   Acceptor *acceptor_;
-  std::vector<std::unique_ptr<EventLoop>> sub_reactors_;
 
+  /**
+  SubReactors:
+    To serve Connectors
+  */
+  std::vector<std::unique_ptr<EventLoop>> sub_reactors_;
+  /**
+  Connectors:
+    1. Read from client,
+    2. Assign logical processing tasks to workers,
+    3. Write back to client
+  */
   std::unordered_map<int, ConnectorPtr> connectionsMap_;
 
   ThreadPool *sub_reactors_thread_pool_;
 
   MessageCallback messagecb_;
   WriteCompleteCallback writeCompletecb_;
-  void removeConnection(int);
 
-  void newConnection(int fd, const InetAddress &addr);
+  void createConnection(int fd, const InetAddress &addr);
+  void deleteConnection(int fd);
 };

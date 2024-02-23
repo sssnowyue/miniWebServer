@@ -30,7 +30,7 @@ void Channel::disableAll() {
 }
 
 void Channel::handleEvent(Timestamp &tm) {
-  LOG_INFO("Channel::handleEvent Revents %d BY FD %d", revents_, fd_);
+  LOG_INFO("Channel (FD %d) handle Revent %d", fd_, revents_);
   if ((revents_ & EPOLLHUP) && !(revents_ & EPOLLIN)) {
     if (closeCallback_) {
       closeCallback_();
@@ -43,12 +43,12 @@ void Channel::handleEvent(Timestamp &tm) {
   }
   if (revents_ & (EPOLLIN | EPOLLPRI)) {
     if (readCallback_) {
-      LOG_INFO(readCallback_.target_type().name());
       readCallback_(tm);
     }
   }
   if (revents_ & EPOLLOUT) {
     if (writeCallback_) {
+      LOG_INFO(writeCallback_.target_type().name());
       writeCallback_();
     }
   }

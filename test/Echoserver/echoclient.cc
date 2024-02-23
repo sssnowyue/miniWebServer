@@ -31,8 +31,11 @@ int main() {
     }
 
     // 发送请求
-    send(sock , hello , strlen(hello) , 0);
-    std::cout << "Request sent" << std::endl;
+    for(int i = 0; i < 100; ++i){
+        send(sock , hello , strlen(hello) , 0);
+        std::cout << "[Running] Sending Request" << std::endl;
+    }
+    std::cout << "[Finish] All Request sent" << std::endl;
 
     // 接收服务器响应
     valread = read( sock , buffer, 1024);

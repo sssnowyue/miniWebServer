@@ -56,8 +56,8 @@ private:
   void handleClose();
   void handleError();
 
-  std::function<void(int)> removeConnectioncb_;
+  std::function<void(int)> deleteConnectioncb_;
 public:
   void writeToBuffer_(const char *data);
-  void setRemoveConnection(const std::function<void(int)> &cb){removeConnectioncb_ = cb;}
+  void setDeleteConnection(const std::function<void(int)> &cb){deleteConnectioncb_ = cb;}
 };
