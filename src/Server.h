@@ -1,5 +1,6 @@
 #pragma once
 #include "Connector.h"
+#include <functional>
 #include <memory>
 class ThreadPool;
 class InetAddress;
@@ -9,9 +10,15 @@ public:
   Server(const unsigned short port);
   ~Server();
   void Start();
-  void setMessage(const MessageCallback &cb) { messagecb_ = cb; }
-  void setWriteComplete(const WriteCompleteCallback &cb) {
-    writeCompletecb_ = cb;
+  // set callback function used to be run after receive message from client
+  void setAfterRead(
+      const std::function<void(const std::shared_ptr<Connector> &)> &cb) {
+    afterReadCallback_ = cb;
+  }
+  // set callback function used to be run after send message into client
+  void setWriteRead(
+      const std::function<void(const std::shared_ptr<Connector> &)> &cb) {
+    afterWriteCallback_ = cb;
   }
 
 private:
@@ -39,13 +46,22 @@ private:
     2. Assign logical processing tasks to workers,
     3. Write back to client
   */
-  std::unordered_map<int, ConnectorPtr> connectionsMap_;
+  std::unordered_map<int, std::shared_ptr<Connector>> connectionsMap_;
 
+  /**
+  Thread Pool:
+    To Run SubReactors
+  */
   ThreadPool *sub_reactors_thread_pool_;
 
-  MessageCallback messagecb_;
-  WriteCompleteCallback writeCompletecb_;
+  // Process after receive message from client
+  std::function<void(const std::shared_ptr<Connector> &)> afterReadCallback_;
+  // Process after send message into client
+  std::function<void(const std::shared_ptr<Connector> &)> afterWriteCallback_;
 
-  void createConnection(int fd, const InetAddress &addr);
+  // Part of Process after Acceptor accepted new client : Assign them to
+  // SubReactors
+  void createConnection(int fd, InetAddress addr);
+  // Part of Process after client disconnect : Destroy Connector
   void deleteConnection(int fd);
 };

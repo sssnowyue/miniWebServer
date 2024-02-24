@@ -1,14 +1,13 @@
 #include "../../src/Server.h"
-void onMessage(const ConnectorPtr &conn, Buffer *buf, Timestamp time) {
-  std::string msg = buf->retrieveAllStr();
+void process(const std::shared_ptr<Connector> &conn) {
+  std::string msg = conn->read();
   std::cout << "Message from client " << msg << std::endl;
-  conn->writeToBuffer_(msg.c_str());
+  conn->write(msg.c_str());
 }
 int main() {
   Server *server = new Server(8080);
-  MessageCallback cb = std::bind(&onMessage, std::placeholders::_1,
-                                 std::placeholders::_2, std::placeholders::_3);
-  server->setMessage(cb);
+  auto cb = std::bind(&process, std::placeholders::_1);
+  server->setAfterRead(cb);
   server->Start();
 
   delete server;

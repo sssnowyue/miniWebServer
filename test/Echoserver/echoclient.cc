@@ -31,14 +31,16 @@ int main() {
     }
 
     // 发送请求
-    for(int i = 0; i < 100; ++i){
+    for(int i = 0; i < 1; ++i){
         send(sock , hello , strlen(hello) , 0);
-        std::cout << "[Running] Sending Request" << std::endl;
+        std::cout << "[Running] Sending" << std::endl;
     }
-    std::cout << "[Finish] All Request sent" << std::endl;
+    std::cout << "[Finish] Sent" << std::endl;
 
     // 接收服务器响应
+    std::cout << "[Running] Receiving" << std::endl;
     valread = read( sock , buffer, 1024);
+    std::cout << "[Finish] Received" << std::endl;
     std::cout << buffer << std::endl;
 
     return 0;

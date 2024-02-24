@@ -27,22 +27,23 @@ Server::~Server() {
   delete sub_reactors_thread_pool_;
 }
 
-void Server::createConnection(int fd, const InetAddress &addr) {
+void Server::createConnection(int fd, InetAddress addr) {
   assert(fd != -1);
   uint64_t random = fd % sub_reactors_.size();
-  ConnectorPtr conn(new Connector(fd, sub_reactors_[random].get(), addr,
-                                  messagecb_, writeCompletecb_));
+  std::shared_ptr<Connector> conn(
+      new Connector(fd, sub_reactors_[random].get(), addr));
   connectionsMap_[fd] = conn;
+  conn->setAfterRead(afterReadCallback_);
+  conn->setWriteRead(afterWriteCallback_);
   conn->setDeleteConnection(
       std::bind(&Server::deleteConnection, this, std::placeholders::_1));
+  conn->start();
 }
 
 void Server::deleteConnection(int fd) { connectionsMap_.erase(fd); }
 
 void Server::Start() {
   for (size_t i = 0; i < sub_reactors_.size(); ++i) {
-    // std::function<void()> sub_loop =
-    //     std::bind(&EventLoop::loop, sub_reactors_[i].get());
     auto loop_function = [this, i]() { sub_reactors_[i]->loop(); };
     sub_reactors_thread_pool_->enqueue(loop_function);
   }
