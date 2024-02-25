@@ -1,39 +1,39 @@
 #pragma once
-#include "Connector.h"
 #include <functional>
 #include <memory>
+#include "Connector.h"
 class ThreadPool;
 class InetAddress;
 class Acceptor;
 class Server {
-public:
+ public:
   Server(const unsigned short port);
   ~Server();
   void Start();
   // set callback function used to be run after receive message from client
   void setAfterRead(
-      const std::function<void(const std::shared_ptr<Connector> &)> &cb) {
+      const std::function<void(const std::shared_ptr<Connector>&)>& cb) {
     afterReadCallback_ = cb;
   }
   // set callback function used to be run after send message into client
   void setWriteRead(
-      const std::function<void(const std::shared_ptr<Connector> &)> &cb) {
+      const std::function<void(const std::shared_ptr<Connector>&)>& cb) {
     afterWriteCallback_ = cb;
   }
 
-private:
+ private:
   /**
   Main Reactor:
     To serve Accpetor
   */
-  EventLoop *main_reactor_;
+  EventLoop* main_reactor_;
   /**
   Acceptor:
     1. Listen,
     2. Accept new clients,
     3. Assign them to SubReactors
   */
-  Acceptor *acceptor_;
+  Acceptor* acceptor_;
 
   /**
   SubReactors:
@@ -52,16 +52,16 @@ private:
   Thread Pool:
     To Run SubReactors
   */
-  ThreadPool *sub_reactors_thread_pool_;
+  ThreadPool* sub_reactors_thread_pool_;
 
   // Process after receive message from client
-  std::function<void(const std::shared_ptr<Connector> &)> afterReadCallback_;
+  std::function<void(const std::shared_ptr<Connector>&)> afterReadCallback_;
   // Process after send message into client
-  std::function<void(const std::shared_ptr<Connector> &)> afterWriteCallback_;
+  std::function<void(const std::shared_ptr<Connector>&)> afterWriteCallback_;
 
   // Part of Process after Acceptor accepted new client : Assign them to
   // SubReactors
-  void createConnection(int fd, InetAddress addr);
+  void createConnection(int fd, const InetAddress& addr);
   // Part of Process after client disconnect : Destroy Connector
   void deleteConnection(int fd);
 };

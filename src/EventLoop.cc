@@ -1,14 +1,14 @@
 #include "EventLoop.h"
+#include <memory>
 #include "Channel.h"
 #include "EpollPoller.h"
-#include <memory>
 const int pollTimeMs = 10000;
 
 EventLoop::EventLoop() : epoller_(std::make_unique<EpollPoller>()) {}
 
 EventLoop::~EventLoop() {}
 
-void EventLoop::updateChannel(Channel *channel) const {
+void EventLoop::updateChannel(Channel* channel) const {
   epoller_->updateChannel(channel);
 }
 

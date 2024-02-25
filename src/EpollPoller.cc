@@ -1,7 +1,7 @@
 #include "EpollPoller.h"
+#include <cstring>
 #include "Channel.h"
 #include "util/Logger.h"
-#include <cstring>
 
 EpollPoller::EpollPoller() : epfd_(-1), events_(initEpollEventListSize) {
   epfd_ = epoll_create1(0);
@@ -39,10 +39,11 @@ EpollPoller::~EpollPoller() {
 //   channel->setCurState(ChannelState::DELETED);
 // }
 
-void EpollPoller::updateChannel(Channel *channel) {
+void EpollPoller::updateChannel(Channel* channel) {
   ChannelState status = channel->getCurState();
   if (status == ChannelState::DELETED) {
-    if (channel->getEvents() != NoneEvent) {
+    EpollCtlOperate(channel, EPOLL_CTL_DEL);
+    if (channel->getEvents() != 0) {
       EpollCtlOperate(channel, EPOLL_CTL_ADD);
       channel->setCurState(ChannelState::ADDED);
     }
@@ -50,7 +51,7 @@ void EpollPoller::updateChannel(Channel *channel) {
     EpollCtlOperate(channel, EPOLL_CTL_ADD);
     channel->setCurState(ChannelState::ADDED);
   } else {
-    if (channel->getEvents() == NoneEvent) {
+    if (channel->getEvents() == 0) {
       EpollCtlOperate(channel, EPOLL_CTL_DEL);
       channel->setCurState(ChannelState::DELETED);
     } else {
@@ -60,16 +61,15 @@ void EpollPoller::updateChannel(Channel *channel) {
 }
 
 Timestamp EpollPoller::waitPoll(int timeout,
-                                std::vector<Channel *> *activeChannels) {
+                                std::vector<Channel*>* activeChannels) {
   // Wait for ready events
   int nfds = epoll_wait(epfd_, events_.data(), events_.size(), timeout);
-  LOG_INFO("Epoll %d wait get nfds number is %d", epfd_, nfds);
   Timestamp nowReturn = Timestamp::now();
   if (nfds > 0) {
     // Traverse the ready events, update revents of the corresponding Channel,
     // insert these actived channel into the array
     for (int i = 0; i < nfds; ++i) {
-      Channel *ch = static_cast<Channel *>(events_[i].data.ptr);
+      Channel* ch = static_cast<Channel*>(events_[i].data.ptr);
       ch->set_revents(events_[i].events);
       activeChannels->push_back(ch);
     }
@@ -81,7 +81,7 @@ Timestamp EpollPoller::waitPoll(int timeout,
   return nowReturn;
 }
 
-void EpollPoller::EpollCtlOperate(Channel *channel, int operation) {
+void EpollPoller::EpollCtlOperate(Channel* channel, int operation) {
   epoll_event event;
   memset(&event, 0, sizeof(event));
 
@@ -92,6 +92,15 @@ void EpollPoller::EpollCtlOperate(Channel *channel, int operation) {
   event.data.ptr = channel;
 
   int ret = epoll_ctl(epfd_, operation, fd, &event);
-  errif(ret == -1, "epoll Ctl Operation error");
+  // errif(ret == -1, "epoll Ctl Operation error");
+  if (ret < 0) {
+    if (operation == EPOLL_CTL_ADD) {
+      LOG_ERROR("epoll Ctl Operation EPOLL_CTL_ADD error : %d || Channal State : %d / fd : %d / Event : %d / REvent : %d", errno, channel->getCurState(), channel->getFd(), channel->getEvents(), channel->getRevents());
+    } else if (operation == EPOLL_CTL_MOD) {
+      LOG_ERROR("epoll Ctl Operation EPOLL_CTL_MOD error : %d", errno);
+    } else {
+      LOG_ERROR("epoll Ctl Operation EPOLL_CTL_DEL error : %d", errno);
+    }
+  }
   return;
 }

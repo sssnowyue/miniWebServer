@@ -1,13 +1,13 @@
 #include "Server.h"
+#include <cassert>
 #include "Acceptor.h"
 #include "EventLoop.h"
 #include "threadpool/ThreadPool.h"
-#include <cassert>
 
 Server::Server(const unsigned short port) {
   main_reactor_ = new EventLoop();
   acceptor_ = new Acceptor(main_reactor_, port);
-  std::function<void(int, const InetAddress &)> cb =
+  std::function<void(int, const InetAddress&)> cb =
       std::bind(&Server::createConnection, this, std::placeholders::_1,
                 std::placeholders::_2);
   acceptor_->setCreateConnectionCallback(cb);
@@ -27,7 +27,7 @@ Server::~Server() {
   delete sub_reactors_thread_pool_;
 }
 
-void Server::createConnection(int fd, InetAddress addr) {
+void Server::createConnection(int fd, const InetAddress& addr) {
   assert(fd != -1);
   uint64_t random = fd % sub_reactors_.size();
   std::shared_ptr<Connector> conn(
@@ -40,11 +40,15 @@ void Server::createConnection(int fd, InetAddress addr) {
   conn->start();
 }
 
-void Server::deleteConnection(int fd) { connectionsMap_.erase(fd); }
+void Server::deleteConnection(int fd) {
+  connectionsMap_.erase(fd);
+}
 
 void Server::Start() {
   for (size_t i = 0; i < sub_reactors_.size(); ++i) {
-    auto loop_function = [this, i]() { sub_reactors_[i]->loop(); };
+    auto loop_function = [this, i]() {
+      sub_reactors_[i]->loop();
+    };
     sub_reactors_thread_pool_->enqueue(loop_function);
   }
   main_reactor_->loop();

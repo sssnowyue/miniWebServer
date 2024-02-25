@@ -8,7 +8,7 @@
 int main() {
     int sock = 0, valread;
     struct sockaddr_in serv_addr;
-    char const *hello = "GET / HTTP/1.1\r\nHost: yourhostname.com\r\n\r\n";
+    char const *hello = "\r\nGET / HTTP/1.1\r\nHost: yourhostname.com\r\n\r\n";
     char buffer[1024] = {0};
 
     if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
@@ -34,6 +34,7 @@ int main() {
     for(int i = 0; i < 1; ++i){
         send(sock , hello , strlen(hello) , 0);
         std::cout << "[Running] Sending" << std::endl;
+        sleep(2);
     }
     std::cout << "[Finish] Sent" << std::endl;
 
@@ -42,6 +43,8 @@ int main() {
     valread = read( sock , buffer, 1024);
     std::cout << "[Finish] Received" << std::endl;
     std::cout << buffer << std::endl;
+
+    close(sock);
 
     return 0;
 }

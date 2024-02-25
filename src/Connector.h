@@ -6,7 +6,7 @@
 class InetAddress;
 class Connector : public std::enable_shared_from_this<Connector> {
 public:
-  Connector(int socketFd, EventLoop *eventLoop, InetAddress addr);
+  Connector(int socketFd, EventLoop *eventLoop, const InetAddress& addr);
   ~Connector();
 
 private:
@@ -36,6 +36,7 @@ public:
 
   std::string read();
   void write(const char *data);
+  void shutdown();
 
   void setAfterRead(
       const std::function<void(const std::shared_ptr<Connector> &)> &cb) {

@@ -1,15 +1,15 @@
 #include "Socket.h"
+#include <sys/socket.h>
 #include "../util/Errif.h"
 #include "../util/Logger.h"
-#include <sys/socket.h>
 
 void vertifyFD(int fd) {
   errif(fd == -1, "socket create error");
-  if (fd == 0) { // Close socket immediately
+  if (fd == 0) {  // Close socket immediately
     struct linger tmp = {0, 1};
     setsockopt(fd, SOL_SOCKET, SO_LINGER, &tmp, sizeof(tmp));
   } else if (fd ==
-             1) { // Wait for unsent data to be sent, then close the socket
+             1) {  // Wait for unsent data to be sent, then close the socket
     struct linger tmp = {1, 1};
     setsockopt(fd, SOL_SOCKET, SO_LINGER, &tmp, sizeof(tmp));
   }
@@ -20,7 +20,9 @@ Socket::Socket() : fd_(-1) {
   vertifyFD(fd_);
 }
 
-Socket::Socket(int _fd) : fd_(_fd) { vertifyFD(fd_); }
+Socket::Socket(int _fd) : fd_(_fd) {
+  vertifyFD(fd_);
+}
 
 Socket::~Socket() {
   if (fd_ != -1) {
@@ -29,8 +31,8 @@ Socket::~Socket() {
   }
 }
 
-void Socket::bind(InetAddress *addr) {
-  int ret = ::bind(fd_, (sockaddr *)&addr->getAddr(), sizeof(addr->getAddr()));
+void Socket::bind(InetAddress* addr) {
+  int ret = ::bind(fd_, (sockaddr*)&addr->getAddr(), sizeof(addr->getAddr()));
   errif(ret == -1, "socket bind error");
 }
 
@@ -39,9 +41,9 @@ void Socket::listen() {
   errif(ret == -1, "socket listen error");
 }
 
-int Socket::accept(InetAddress *addr) {
-  int client_fd = ::accept(fd_, (sockaddr *)&addr->getAddr(),
-                           (socklen_t *)&addr->getAddr_len());
+int Socket::accept(InetAddress* addr) {
+  int client_fd = ::accept(fd_, (sockaddr*)&addr->getAddr(),
+                           (socklen_t*)&addr->getAddr_len());
   errif(client_fd == -1, "socket accept error");
   return client_fd;
 }

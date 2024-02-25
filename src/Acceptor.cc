@@ -2,7 +2,7 @@
 #include "Channel.h"
 #include "net/InetAddress.h"
 #include "util/Logger.h"
-Acceptor::Acceptor(EventLoop *eventLoop, const unsigned short port)
+Acceptor::Acceptor(EventLoop* eventLoop, const unsigned short port)
     : eventLoop_(eventLoop) {
   // STEP1: socket()
   acceptorSocket_ = new Socket();
@@ -16,12 +16,12 @@ Acceptor::Acceptor(EventLoop *eventLoop, const unsigned short port)
 
   acceptorChannel_ =
       new Channel(acceptorSocket_->getFd(),
-                  eventLoop); // Create a channel to manage server's socket fd
+                  eventLoop);  // Create a channel to manage server's socket fd
   acceptorChannel_->setReadCallback(std::bind(
-      &Acceptor::AcceptConnection, this)); // Set readCallback_ in channel
+      &Acceptor::AcceptConnection, this));  // Set readCallback_ in channel
   acceptorChannel_
-      ->enableReading(); // Set events ===> Regist server's socket fd into epoll
-                         // ===> change state of channel
+      ->enableReading();  // Set events ===> Regist server's socket fd into epoll
+                          // ===> change state of channel
 }
 
 Acceptor::~Acceptor() {
@@ -36,8 +36,8 @@ void Acceptor::AcceptConnection() {
   InetAddress client_addr;
   int client_fd = acceptorSocket_->accept(&client_addr);
   if (client_fd >= 0) {
-    if (newConnectionCallback_) {
-      newConnectionCallback_(client_fd, client_addr);
+    if (createConnectionCallback_) {
+      createConnectionCallback_(client_fd, client_addr);
     } else {
       close(client_fd);
     }
