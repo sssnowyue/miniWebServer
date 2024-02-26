@@ -8,7 +8,7 @@ Acceptor::Acceptor(EventLoop* eventLoop, const unsigned short port)
   acceptorSocket_ = new Socket();
   acceptorSocket_->setnonblocking();
   // Set Socket Address
-  accptor_addr = new InetAddress("127.0.0.1", port);
+  accptor_addr = new InetAddress("0.0.0.0", port);
   // STEP2: bind()
   acceptorSocket_->bind(accptor_addr);
   // STEP3: listen();
