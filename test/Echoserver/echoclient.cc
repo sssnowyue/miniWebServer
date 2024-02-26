@@ -36,6 +36,7 @@ int main() {
         std::cout << "[Running] Sending" << std::endl;
         sleep(2);
     }
+
     std::cout << "[Finish] Sent" << std::endl;
 
     // 接收服务器响应
@@ -45,6 +46,8 @@ int main() {
     std::cout << buffer << std::endl;
 
     close(sock);
+
+    std::cout << "[Close] Close" << std::endl;
 
     return 0;
 }

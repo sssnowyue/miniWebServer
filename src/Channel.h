@@ -24,12 +24,12 @@ struct epoll_event {
 
 /**
 events: 
-1. EPOLLIN:         0x001       Ready for Read
-2. EPOLLOUT:        0x004       Ready for write
-3. EPOLLRDHUP:      0x2000      Peer closed connection or stopped writing
+1. EPOLLIN:         0x001       available for read(2) operations
+2. EPOLLOUT:        0x004       available for write(2) operations
+3. EPOLLRDHUP:      0x2000      Stream socket peer closed connection, or shut down writing half of connection.
 4. EPOLLPRI:        0x002       Urgent out-of-band data available
-5. EPOLLERR:        0x008       Error happened on file descriptor
-6. EPOLLHUP:        0x010       Hang up happened on file descriptor
+5. EPOLLERR:        0x008       Error happened on file descriptor (Also reported for the write end of a pipe when the read end has been closed) [Not necessary to set before]
+6. EPOLLHUP:        0x010       Hang up happened on file descriptor  [Not necessary to set before] (When reading from a channel such as a pipe or a stream socket, this event merely indicates that the peer closed its end of the channel.  Subsequent reads from the channel will return 0 (end of file) only after all outstanding data in the channel has been consumed.)
 7. EPOLLET:         0x80000000  Enable edge-triggered mode
 8. EPOLLONESHOT:    0x40000000  Set one-shot mode. File descriptor disabled after one event until re-armed
 */
@@ -83,6 +83,6 @@ class Channel {
   std::function<void()> closeCallback_;          // Close CallBack Function
   std::function<void()> errorCallback_;          // Error CallBack Function
   const int NoneEvent = 0;
-  const int ReadEvent = EPOLLIN | EPOLLPRI | EPOLLET | EPOLLHUP;
-  const int WriteEvent = EPOLLOUT | EPOLLHUP;
+  const int ReadEvent = EPOLLIN | EPOLLPRI | EPOLLET;
+  const int WriteEvent = EPOLLOUT;
 };

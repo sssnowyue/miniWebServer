@@ -42,10 +42,16 @@ void Connector::write(const char* data) {
   outputBuffer_->append(data, data_len);
   channel_->enableWriting();
 }
-
+/**
+Close 2 - Connection closed by the server:
+  shutdown write ---> 
+*/
 void Connector::shutdown() {
   if (state_ == Connector::Connected) {
     state_ = Connector::Disconnecting;
+    if (!(channel_->getEvents() & EPOLLOUT)) {
+      socket_->shutdownWrite();
+    }
   }
 }
 
@@ -53,10 +59,13 @@ void Connector::handleRead(Timestamp receiveTime) {
   int saveErrno = 0;
   ssize_t n = inputBuffer_->readFd(
       channel_->getFd(), &saveErrno);  // read data from fd into inputBuffer
-  if (n > 0) {                         // got data
-    // messageCallback_(shared_from_this(), &inputBuffer_, receiveTime);
+  if (n > 0) {
     afterReadCallback_(shared_from_this());
-  } else if (n == 0) {  // client disconnect
+  } else if (n == 0) {
+    /**
+    Close 1:
+      Connection closed by the client
+    */
     handleClose();
   } else {  // error
     handleError();
@@ -76,7 +85,9 @@ void Connector::handleWrite() {
         afterWriteCallback_(shared_from_this());
       }
       if (state_ == Connector::Disconnecting) {
-        socket_->shutdownWrite();
+        if (!(channel_->getEvents() & EPOLLOUT)) {
+          socket_->shutdownWrite();
+        }
       }
     }
   } else {
