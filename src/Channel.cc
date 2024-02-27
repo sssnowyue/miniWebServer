@@ -1,6 +1,5 @@
 #include "Channel.h"
 #include "EventLoop.h"
-#include "util/Logger.h"
 
 Channel::Channel(int fd, EventLoop* eventloop)
     : eventLoop_(eventloop),
@@ -33,25 +32,20 @@ void Channel::disableAll() {
 }
 
 void Channel::handleEvent(Timestamp& tm) {
-  // LOG_INFO("Channel (FD %d) handle Revent %d", fd_, revents_);
   if (revents_ & EPOLLHUP) {
     if (closeCallback_) {
-      LOG_INFO("EPOLLHUP");
       closeCallback_();
     }
   } else if (revents_ & EPOLLERR) {
     if (errorCallback_) {
-      LOG_INFO("EPOLLERR");
       errorCallback_();
     }
   } else if (revents_ & (EPOLLIN | EPOLLPRI)) {
     if (readCallback_) {
-      LOG_INFO("EPOLLIN | EPOLLPRI");
       readCallback_(tm);
     }
   } else if (revents_ & EPOLLOUT) {
     if (writeCallback_) {
-      LOG_INFO("EPOLLOUT");
       writeCallback_();
     }
   }

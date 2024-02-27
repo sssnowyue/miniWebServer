@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <functional>
 #include "util/Timestamp.h"
-/*
+/**
 Data Construction of epoll_event:
 
 typedef union epoll_data {
@@ -18,8 +18,8 @@ struct epoll_event {
   epoll_data_t data;    //User data variable
 } __EPOLL_PACKED;
 
-// data.ptr <---> Channel
 // Manage event monitoring and processing of file descriptor
+data.ptr <---> Channel
 */
 
 /**

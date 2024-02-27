@@ -8,21 +8,23 @@ class Acceptor {
  public:
   Acceptor(EventLoop* eventLoop, const unsigned short port);
   ~Acceptor();
+  // Set Part of Process after Acceptor accepted new client : Assign them to SubReactors
   void setCreateConnectionCallback(
       const std::function<void(int, const InetAddress&)>& callback) {
     createConnectionCallback_ = callback;
   }
 
  private:
-  // std::unique_ptr<Socket> acceptorSocket_;
-  // std::unique_ptr<Channel> acceptorChannel_;
   EventLoop* eventLoop_;
   InetAddress* accptor_addr;
   Socket* acceptorSocket_;
   Channel* acceptorChannel_;
-  // To Be Registed into channel's readCallback_ （To accept connections, and
-  // distribute connections to SubEventLoop）
-  void AcceptConnection();
-  // Operations (distribute connections to SubEventLoop) after accepted
+  // Part of Process after Acceptor accepted new client : Assign them to SubReactors
   std::function<void(int, const InetAddress&)> createConnectionCallback_;
+  /**
+  Server Channel's readCallback_ :
+    1. Accept Clients
+    2. Assign them to SubReactors
+  */
+  void AcceptConnection();
 };

@@ -13,13 +13,13 @@ using namespace std;
 enum class LogLevel { INFO, WARNING, ERROR };
 
 class Logger {
-public:
-  explicit Logger(const string &logFileName = "server_log.txt");
+ public:
+  explicit Logger(const string& logFileName = "server_log.txt");
   ~Logger();
   // Write Log
-  void log(LogLevel level, const char *msg, ...);
+  void log(LogLevel level, const char* msg, ...);
 
-private:
+ private:
   ofstream fileStream_;
   mutex mutex_;
 

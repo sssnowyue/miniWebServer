@@ -34,7 +34,7 @@ void Server::createConnection(int fd, const InetAddress& addr) {
       new Connector(fd, sub_reactors_[random].get(), addr));
   connectionsMap_[fd] = conn;
   conn->setAfterRead(afterReadCallback_);
-  conn->setWriteRead(afterWriteCallback_);
+  conn->setAfterWrite(afterWriteCallback_);
   conn->setDeleteConnection(
       std::bind(&Server::deleteConnection, this, std::placeholders::_1));
   conn->start();

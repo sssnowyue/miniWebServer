@@ -16,7 +16,7 @@ class Server {
     afterReadCallback_ = cb;
   }
   // set callback function used to be run after send message into client
-  void setWriteRead(
+  void setAfterWrite(
       const std::function<void(const std::shared_ptr<Connector>&)>& cb) {
     afterWriteCallback_ = cb;
   }
@@ -59,8 +59,7 @@ class Server {
   // Process after send message into client
   std::function<void(const std::shared_ptr<Connector>&)> afterWriteCallback_;
 
-  // Part of Process after Acceptor accepted new client : Assign them to
-  // SubReactors
+  // Part of Process after Acceptor accepted new client : Assign them to SubReactors
   void createConnection(int fd, const InetAddress& addr);
   // Part of Process after client disconnect : Destroy Connector
   void deleteConnection(int fd);

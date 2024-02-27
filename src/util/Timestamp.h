@@ -8,7 +8,7 @@
 
 using namespace std::chrono;
 class Timestamp {
-public:
+ public:
   Timestamp();
   explicit Timestamp(uint64_t microSecondsSinceEpoch);
   // Get Current Timestamp(microseconds)
@@ -17,7 +17,7 @@ public:
   std::string toString() const;
   ~Timestamp();
 
-private:
+ private:
   // Timestamp (microseconds)
   uint64_t microSecondsSinceEpoch_;
 };

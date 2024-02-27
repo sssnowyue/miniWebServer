@@ -1,21 +1,31 @@
 #include "Buffer.h"
-#include "Logger.h"
-#include <algorithm>
-#include <string>
 #include <sys/uio.h>
 #include <unistd.h>
+#include <algorithm>
+#include <string>
 Buffer::Buffer(size_t initialSize)
-    : buffer_(kPrepend + kInitialSize), readerIndex_(kPrepend),
+    : buffer_(kPrepend + kInitialSize),
+      readerIndex_(kPrepend),
       writerIndex_(kPrepend) {}
 
-char *Buffer::begin() { return &*buffer_.begin(); }
-const char *Buffer::begin() const { return &*buffer_.begin(); }
+char* Buffer::begin() {
+  return &*buffer_.begin();
+}
+const char* Buffer::begin() const {
+  return &*buffer_.begin();
+}
 
-size_t Buffer::readableLen() const { return writerIndex_ - readerIndex_; }
-size_t Buffer::writeableLen() const { return buffer_.size() - writerIndex_; }
-size_t Buffer::emptyLen() const { return readerIndex_; }
+size_t Buffer::readableLen() const {
+  return writerIndex_ - readerIndex_;
+}
+size_t Buffer::writeableLen() const {
+  return buffer_.size() - writerIndex_;
+}
+size_t Buffer::emptyLen() const {
+  return readerIndex_;
+}
 
-void Buffer::append(const char *data, size_t data_len) {
+void Buffer::append(const char* data, size_t data_len) {
   if (writeableLen() < data_len) {
     makeSpace(data_len);
   }
@@ -48,10 +58,12 @@ std::string Buffer::retrieveLenStr(size_t len) {
   return result;
 }
 
-std::string Buffer::retrieveAllStr() { return retrieveLenStr(readableLen()); }
+std::string Buffer::retrieveAllStr() {
+  return retrieveLenStr(readableLen());
+}
 
-ssize_t Buffer::readFd(int fd, int *saveErrno) {
-  char extrabuf[65536] = {0}; // 64KB
+ssize_t Buffer::readFd(int fd, int* saveErrno) {
+  char extrabuf[65536] = {0};  // 64KB
   struct iovec vec[2];
   const size_t writableLength = writeableLen();
   vec[0].iov_base = begin() + writerIndex_;
@@ -76,7 +88,7 @@ ssize_t Buffer::readFd(int fd, int *saveErrno) {
   return n;
 }
 
-ssize_t Buffer::writeFd(int fd, int *saveErrno) {
+ssize_t Buffer::writeFd(int fd, int* saveErrno) {
   ssize_t n = ::write(fd, begin() + readerIndex_, readableLen());
   if (n < 0) {
     *saveErrno = errno;

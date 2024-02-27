@@ -14,14 +14,15 @@ Acceptor::Acceptor(EventLoop* eventLoop, const unsigned short port)
   // STEP3: listen();
   acceptorSocket_->listen();
 
-  acceptorChannel_ =
-      new Channel(acceptorSocket_->getFd(),
-                  eventLoop);  // Create a channel to manage server's socket fd
-  acceptorChannel_->setReadCallback(std::bind(
-      &Acceptor::AcceptConnection, this));  // Set readCallback_ in channel
-  acceptorChannel_
-      ->enableReading();  // Set events ===> Regist server's socket fd into epoll
-                          // ===> change state of channel
+  acceptorChannel_ = new Channel(acceptorSocket_->getFd(), eventLoop);
+  acceptorChannel_->setReadCallback(
+      std::bind(&Acceptor::AcceptConnection, this));
+  /**
+  Set channel events 
+    ===> Regist server's socket fd into epoll
+      ===> change state of channel
+  */
+  acceptorChannel_->enableReading();
 }
 
 Acceptor::~Acceptor() {
@@ -42,6 +43,6 @@ void Acceptor::AcceptConnection() {
       close(client_fd);
     }
   } else {
-    LOG_ERROR("Fail to accept client");
+    LOG_ERROR("%s | Fail to accept client", __PRETTY_FUNCTION__);
   }
 }

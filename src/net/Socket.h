@@ -1,31 +1,31 @@
 #pragma once
-#include "InetAddress.h"
 #include <arpa/inet.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include "InetAddress.h"
 
 class InetAddress;
 class Socket {
-public:
+ public:
   // STEP1: socket()
   Socket();
   Socket(int);
   ~Socket();
 
   // STEP2: bind()
-  void bind(InetAddress *);
+  void bind(InetAddress*);
   // STEP3: listen();
   void listen();
   // STEP4: accept()
-  int accept(InetAddress *);
+  int accept(InetAddress*);
 
-  int getFd(){ return fd_;}
+  int getFd() { return fd_; }
 
   // set socket to be nonblock
   void setnonblocking();
 
   void shutdownWrite();
 
-private:
+ private:
   int fd_;
 };

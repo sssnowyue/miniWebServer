@@ -2,7 +2,6 @@
 #include <cstddef>
 #include <cstring>
 #include "Channel.h"
-#include "net/InetAddress.h"
 #include "net/Socket.h"
 #include "util/Buffer.h"
 #include "util/Logger.h"
@@ -42,10 +41,7 @@ void Connector::write(const char* data) {
   outputBuffer_->append(data, data_len);
   channel_->enableWriting();
 }
-/**
-Close 2 - Connection closed by the server:
-  shutdown write ---> 
-*/
+
 void Connector::shutdown() {
   if (state_ == Connector::Connected) {
     state_ = Connector::Disconnecting;
