@@ -41,6 +41,7 @@ A basic web server from scratch in C++
     - if yes, current thread won't be blocked, return `Ready Linked` Listimmediately.
     - if not, current thread will be blocked, and link the thread into the `Wait Queue`.
 
+
 - When fd is ready, kernel will insert the fd into the `Ready Linked List` through the `backcall function A`.
 - Kernel will check the `Wait Queue` to find the blocked thread, and wake up the thread.
 
@@ -56,3 +57,30 @@ A basic web server from scratch in C++
     > Write events: only trigger once, unless the TCP window goes from saturated to unsaturated then saturated again, will the POLLOUT event be triggered again.
 
 ### Thread Pool
+To manage a group of worker threads for asynchronously executing tasks.
+#### Task Submission and Execution
+- The `enqueue` method is used to submit tasks to the thread pool, supporting tasks of any type (function + parameters).
+- Each task is wrapped in a `std::packaged_task` and placed in the task queue for execution.
+- Each worker thread in the thread pool continuously retrieves tasks from the queue and executes them in a loop.
+#### Thread Safety
+- Mutex `queueMutex` is used to ensure thread-safe access to the task queue.
+- Condition variable `condition` is used to implement thread waiting and waking, avoiding busy-waiting.
+
+### Buffer
+#### 1. Interact with fd
+- Read data from fd
+> use `iovec` as extra buffer to guarantee read data from fd in one time
+- Write data to fd
+#### 2. Serve for logic processing
+- Retrieve String from inputBuffer
+- Append String to outputBuffer
+#### 3. Expand Buffer Automatically
+
+
+## TODO LIST
+- Move the Worker from the Connector to the thread pool
+- Add Support for Database
+
+## Reference
+- [muduo](https://github.com/chenshuo/muduo)
+- [ThreadPool](https://github.com/progschj/ThreadPool)

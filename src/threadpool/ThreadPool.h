@@ -16,22 +16,23 @@ class ThreadPool {
   ~ThreadPool();
 
  private:
-  std::queue<std::function<void()>>
-      tasks;  // queue of tasks that will be added to the thread pool
-  std::vector<std::thread> workers;  // list of threads in threadpool
-  std::mutex queueMutex;             // Mutex, used to ensure thread safety
-  std::condition_variable
-      condition;  // Condition variables, used to implement thread synchronization
-  bool stop;      // Flag indicating whether the thread pool is stopped
+  // queue of tasks that will be added to the thread pool
+  std::queue<std::function<void()>> tasks;
+  // list of threads in threadpool
+  std::vector<std::thread> workers;
+  // Mutex, used to ensure thread safety
+  std::mutex queueMutex;
+  // Condition variables, used to implement thread synchronization
+  std::condition_variable condition;
+  // Flag indicating whether the thread pool is stopped
+  bool stop;
 };
 
 template <class F, class... Args>
 auto ThreadPool::enqueue(F&& f, Args&&... args)
     -> std::future<decltype(f(args...))> {
   using return_type = decltype(f(args...));
-
-  auto callableBind =
-      std::bind(std::forward<F>(f), std::forward<Args>(args)...);
+  auto callableBind = std::bind(std::forward<F>(f), std::forward<Args>(args)...);
   auto task = std::make_shared<std::packaged_task<return_type()>>(callableBind);
   std::future<return_type> res = task->get_future();
 
