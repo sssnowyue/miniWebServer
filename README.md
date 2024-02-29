@@ -76,6 +76,35 @@ To manage a group of worker threads for asynchronously executing tasks.
 - Append String to outputBuffer
 #### 3. Expand Buffer Automatically
 
+### Magic of `Channel`
+An 'agent' of `fd`, manage:
+- events that prepare to be monitored in epoll `events_`
+- events that have been triggered from epoll `revents_`
+- Corresponding handling operations after events are triggered from epoll `readCallback_`,`writeCallback_`,`closeCallback_`,`errorCallback_`
+```cpp
+// Structure of epoll_event in epoll
+typedef union epoll_data
+{
+  void *ptr;
+  int fd;
+  uint32_t u32;
+  uint64_t u64;
+} epoll_data_t;
+
+struct epoll_event
+{
+  uint32_t events;	/* Epoll events */
+  epoll_data_t data;	/* User data variable */
+} __EPOLL_PACKED;
+```
+
+```cpp
+// magic linking design between Channel and epoll
+event.events = channel->getEvents();
+event.data.fd = channel->getFd();
+event.data.ptr = channel;
+```
+
 
 ## TODO LIST
 - Move the Worker from the Connector to the thread pool
